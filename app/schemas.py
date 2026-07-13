@@ -71,3 +71,19 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: Optional[str] = None
+
+
+# --- Pagination Schemas ---
+class PaginationMetadata(BaseModel):
+    total_count: int
+    page: int
+    page_size: int
+    total_pages: int
+
+class PaginatedProjectResponse(BaseModel):
+    data: List[ProjectResponse]
+    pagination: PaginationMetadata
+
+class PaginatedTaskResponse(BaseModel):
+    data: List[TaskResponse]
+    pagination: PaginationMetadata
