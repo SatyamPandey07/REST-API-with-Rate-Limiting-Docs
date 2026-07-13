@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- GitHub Actions CI workflow config at `.github/workflows/ci.yml` running on pushes/pull requests.
+- Integrated sidecar PostgreSQL and Redis database containers inside CI pipeline environment.
+- Configured code test coverage reporting via `pytest-cov`, strictly enforcing a minimum threshold of **95%**.
+- Comprehensive unit test file `tests/test_coverage_gaps.py` targeting edge cases to reach **99%** code coverage.
 - Comprehensive OpenAPI documentation enhancements for FastAPI, including detailed docstrings on all routers and tags grouping (Auth, Projects, Tasks, Health).
 - Detailed description and realistic request/response validation examples on all Pydantic schemas.
 - Automation script `scripts/generate_postman.py` compiling a complete v2.1.0 Postman collection saved at `docs/postman_collection.json`.
