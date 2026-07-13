@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
@@ -36,12 +36,29 @@ def create_project(
     db.refresh(new_project)
     return new_project
 
-@router.get("/", response_model=List[schemas.ProjectResponse])
+@router.get("/", response_model=schemas.PaginatedProjectResponse)
 def get_projects(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
 ):
-    return db.query(models.Project).filter(models.Project.user_id == current_user.id).all()
+    query = db.query(models.Project).filter(models.Project.user_id == current_user.id)
+    total_count = query.count()
+    
+    total_pages = (total_count + page_size - 1) // page_size if total_count > 0 else 0
+    offset = (page - 1) * page_size
+    data = query.offset(offset).limit(page_size).all()
+    
+    return {
+        "data": data,
+        "pagination": {
+            "total_count": total_count,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": total_pages
+        }
+    }
 
 @router.get("/{project_id}", response_model=schemas.ProjectDetailResponse)
 def get_project(

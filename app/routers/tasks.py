@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from app.database import get_db
 from app.dependencies import get_current_user
 from app import models, schemas
@@ -38,12 +38,36 @@ def create_task(
     db.refresh(new_task)
     return new_task
 
-@router.get("/", response_model=List[schemas.TaskResponse])
+@router.get("/", response_model=schemas.PaginatedTaskResponse)
 def get_tasks(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    status: Optional[str] = Query(None),
+    project_id: Optional[int] = Query(None),
     db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
 ):
-    return db.query(models.Task).filter(models.Task.user_id == current_user.id).all()
+    query = db.query(models.Task).filter(models.Task.user_id == current_user.id)
+    
+    if status is not None:
+        query = query.filter(models.Task.status == status)
+    if project_id is not None:
+        query = query.filter(models.Task.project_id == project_id)
+        
+    total_count = query.count()
+    total_pages = (total_count + page_size - 1) // page_size if total_count > 0 else 0
+    offset = (page - 1) * page_size
+    data = query.offset(offset).limit(page_size).all()
+    
+    return {
+        "data": data,
+        "pagination": {
+            "total_count": total_count,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": total_pages
+        }
+    }
 
 @router.get("/{task_id}", response_model=schemas.TaskResponse)
 def get_task(
