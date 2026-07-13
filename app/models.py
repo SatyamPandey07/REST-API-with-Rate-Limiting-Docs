@@ -34,8 +34,13 @@ class Task(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True, nullable=False)
     description = Column(String, nullable=True)
-    status = Column(String, default="Todo", nullable=False)
-    project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
+    
+    # Adding explicit index=True here is crucial. Since status and project_id are heavily
+    # filtered in list queries, indexing them avoids full-table scans (O(N) search time) 
+    # and allows database search lookup in O(log N) logarithmic time using B-Trees.
+    status = Column(String, default="Todo", nullable=False, index=True)
+    project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
+    
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
