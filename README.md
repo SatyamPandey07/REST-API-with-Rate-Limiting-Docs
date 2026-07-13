@@ -6,6 +6,14 @@ A robust task and project management REST API built with FastAPI, PostgreSQL, SQ
 
 ---
 
+## 📋 Product Requirements Document (PRD)
+
+- 🔗 **[Read the TaskFlow API PRD](docs/TaskFlow_API_PRD.pdf)**
+
+This document details the functional specifications for the task and project models, JWT-based security constraints, endpoints rate-limiting criteria, and API URL versioning rules. It serves as the baseline product roadmap for establishing cross-user boundary isolation and pipeline coverage compliance.
+
+---
+
 ## 📖 Problem Statement
 
 Modern web architectures require performant, secure, and easily maintainable backend services. Building APIs that scale cleanly from day one requires solving common architectural issues:
