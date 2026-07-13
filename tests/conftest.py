@@ -1,3 +1,6 @@
+import os
+os.environ["REDIS_URL"] = ""  # Force in-memory slowapi for test isolation
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -6,6 +9,7 @@ from app.database import Base, get_db
 from app.main import app
 from app import models, security
 
+# Use a clean test sqlite DB
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
 engine = create_engine(
