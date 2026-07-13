@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
 from app.dependencies import get_current_user
 from app import models, schemas
+from app.limiter import limiter
 
 router = APIRouter(
     prefix="/projects",
@@ -11,7 +12,9 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=schemas.ProjectResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("30/minute")
 def create_project(
+    request: Request,
     project: schemas.ProjectCreate, 
     db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
@@ -37,7 +40,9 @@ def create_project(
     return new_project
 
 @router.get("/", response_model=schemas.PaginatedProjectResponse)
+@limiter.limit("100/minute")
 def get_projects(
+    request: Request,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db), 
@@ -61,7 +66,9 @@ def get_projects(
     }
 
 @router.get("/{project_id}", response_model=schemas.ProjectDetailResponse)
+@limiter.limit("100/minute")
 def get_project(
+    request: Request,
     project_id: int, 
     db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
@@ -78,7 +85,9 @@ def get_project(
     return project
 
 @router.put("/{project_id}", response_model=schemas.ProjectResponse)
+@limiter.limit("30/minute")
 def update_project(
+    request: Request,
     project_id: int, 
     project_update: schemas.ProjectUpdate, 
     db: Session = Depends(get_db), 
@@ -114,7 +123,9 @@ def update_project(
     return project
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit("30/minute")
 def delete_project(
+    request: Request,
     project_id: int, 
     db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
