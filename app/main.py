@@ -20,9 +20,20 @@ app.add_exception_handler(RateLimitExceeded, custom_rate_limit_exceeded_handler)
 v1_router = APIRouter(prefix="/api/v1")
 
 # Uptime monitoring health endpoint (unauthenticated)
-@v1_router.get("/health", tags=["health"])
+@v1_router.get("/health", tags=["Health"])
 @limiter.limit("100/minute")
 def health_check(request: Request, db: Session = Depends(get_db)):
+    """
+    Uptime and connectivity health check.
+
+    Verifies the service is running and confirms database connection is fully active.
+
+    - **db**: Database session dependency.
+
+    **Possible HTTP status returns:**
+    - **200 OK**: Service is fully functional. Returns a database health status ("healthy" or "unhealthy").
+    - **429 Too Many Requests**: If monitoring queries exceed 100 requests/minute.
+    """
     try:
         # Run a simple query to verify database connectivity
         db.execute(text("SELECT 1"))
