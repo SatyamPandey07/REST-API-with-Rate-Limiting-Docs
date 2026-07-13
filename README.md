@@ -1,5 +1,7 @@
 # TaskFlow API
 
+[![Continuous Integration](https://github.com/SatyamPandey07/REST-API-with-Rate-Limiting-Docs/actions/workflows/ci.yml/badge.svg)](https://github.com/SatyamPandey07/REST-API-with-Rate-Limiting-Docs/actions/workflows/ci.yml)
+
 A robust task and project management REST API built with FastAPI, PostgreSQL, SQLAlchemy, Alembic, and Pydantic. This repository serves as a step-by-step showcase of modern production API architecture, built incrementally across 8 planned Pull Requests.
 
 ---
@@ -196,6 +198,26 @@ Execute the test suite using `pytest`:
 ```bash
 pytest
 ```
+
+---
+
+## 🛠️ Continuous Integration & Test Coverage
+
+TaskFlow API uses **GitHub Actions** for CI, running on every push and pull request.
+
+### CI Workflow Steps
+1. Spins up sidecar services for **PostgreSQL** and **Redis**.
+2. Checks out code and installs dependencies.
+3. Runs Alembic migrations (`alembic upgrade head`) to verify schema initialization.
+4. Executes the full `pytest` suite with `pytest-cov` reporting.
+5. Fails the build if overall test coverage drops below the **95%** threshold.
+
+### Coverage Commands
+Run tests locally with code coverage tracking:
+```bash
+pytest --cov=app --cov-report=term-missing
+```
+Currently, the codebase maintains **99% test coverage**.
 
 ---
 
