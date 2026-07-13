@@ -156,6 +156,35 @@ Retry-After: 48
 
 ---
 
+## 🌐 API Versioning
+
+TaskFlow API uses **URL-based versioning** (prefixed with `/api/v1/`) to manage endpoints.
+
+### Why URL-based over Header-based versioning?
+- **Ease of Consumption**: URL-based versioning is highly discoverable, visually clean, and straightforward for consumers to test directly in their browsers, postman, or copy-paste curl commands without configuring custom headers.
+- **Caching Simplicity**: Proxies, CDNs, and browser caches natively cache separate URLs without needing custom `Vary` header configuration, ensuring higher caching performance.
+
+### ⚠️ Deprecation & Sunset Mechanism
+To facilitate smooth transitions when introducing new versions, TaskFlow API implements a native deprecation mechanism via HTTP response headers:
+- `X-API-Deprecated: true` (alerting clients that the active endpoint is deprecated).
+- `Sunset: <Date>` (indicating the exact end-of-life timestamp for the deprecated version).
+
+#### Example Response Headers (Deprecated Endpoint)
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+X-API-Deprecated: true
+Sunset: Wed, 11 Nov 2026 00:00:00 GMT
+```
+
+### Hypothetical Version Upgrade (v2 Migration)
+When a future `/api/v2/` version is released (e.g., changing schemas or authentication mechanisms):
+1. The new routers will be mounted under `/api/v2/`.
+2. The `/api/v1/` endpoints will continue to function normally but will start returning `X-API-Deprecated: true` and the `Sunset` header.
+3. Consumers have until the `Sunset` date to transition their request prefixes from `/api/v1/` to `/api/v2/` without breaking production clients.
+
+---
+
 ## 🧪 Running Tests
 
 Unit tests are executed in isolation using an in-memory SQLite database. You do not need the Docker Compose database running to run tests.
