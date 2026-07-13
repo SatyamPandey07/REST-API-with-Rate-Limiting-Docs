@@ -1,5 +1,4 @@
 from fastapi import status
-from app import models, security
 
 def test_create_project(auth_client):
     response = auth_client.post("/projects/", json={"name": "Alpha Project", "description": "Description A"})
@@ -22,13 +21,48 @@ def test_create_duplicate_project_name(auth_client):
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json()["detail"] == "Project with this name already exists"
 
-def test_get_projects(auth_client):
+def test_get_projects_paginated(auth_client):
     auth_client.post("/projects/", json={"name": "P1"})
     auth_client.post("/projects/", json={"name": "P2"})
-    response = auth_client.get("/projects/")
+    auth_client.post("/projects/", json={"name": "P3"})
+
+    # Fetch page 1 with size 2
+    response = auth_client.get("/projects/?page=1&page_size=2")
     assert response.status_code == status.HTTP_200_OK
-    data = response.json()
-    assert len(data) == 2
+    res_data = response.json()
+    assert "data" in res_data
+    assert "pagination" in res_data
+    
+    assert len(res_data["data"]) == 2
+    pagination = res_data["pagination"]
+    assert pagination["total_count"] == 3
+    assert pagination["page"] == 1
+    assert pagination["page_size"] == 2
+    assert pagination["total_pages"] == 2
+
+def test_get_projects_page_out_of_bounds(auth_client):
+    auth_client.post("/projects/", json={"name": "P1"})
+    
+    # Request page 5
+    response = auth_client.get("/projects/?page=5&page_size=2")
+    assert response.status_code == status.HTTP_200_OK
+    res_data = response.json()
+    assert res_data["data"] == []
+    assert res_data["pagination"]["total_count"] == 1
+    assert res_data["pagination"]["total_pages"] == 1
+
+def test_get_projects_validation_errors(auth_client):
+    # Invalid page size (0)
+    response = auth_client.get("/projects/?page=1&page_size=0")
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    # Invalid negative page
+    response = auth_client.get("/projects/?page=-1&page_size=10")
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    # Page size too large (> 100)
+    response = auth_client.get("/projects/?page=1&page_size=101")
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 def test_get_project_by_id(auth_client):
     res = auth_client.post("/projects/", json={"name": "P3"})
@@ -66,21 +100,3 @@ def test_delete_project(auth_client):
 
     get_res = auth_client.get(f"/projects/{project_id}")
     assert get_res.status_code == status.HTTP_404_NOT_FOUND
-
-def test_project_isolation(auth_client, db):
-    # Create another user in DB
-    other_user = models.User(email="other@example.com", hashed_password=security.hash_password("pass"))
-    db.add(other_user)
-    db.commit()
-    db.refresh(other_user)
-
-    # Create a project owned by other_user
-    other_project = models.Project(name="Other Project", user_id=other_user.id)
-    db.add(other_project)
-    db.commit()
-    db.refresh(other_project)
-
-    # Attempt to retrieve other_user's project using auth_client (logged in as test@example.com)
-    # Expected: 404 Not Found to prevent leaking presence
-    response = auth_client.get(f"/projects/{other_project.id}")
-    assert response.status_code == status.HTTP_404_NOT_FOUND

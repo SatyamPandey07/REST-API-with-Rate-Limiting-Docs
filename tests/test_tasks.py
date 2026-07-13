@@ -22,18 +22,79 @@ def test_create_task_invalid_project(auth_client):
     assert response.json()["detail"] == "Project not found"
 
 def test_create_task_validation_error(auth_client):
+    # Missing project_id
     response = auth_client.post("/tasks/", json={"title": "Task C"})
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
-def test_get_tasks(auth_client):
+def test_get_tasks_paginated(auth_client):
     p_res = auth_client.post("/projects/", json={"name": "Project Y"})
     project_id = p_res.json()["id"]
     auth_client.post("/tasks/", json={"title": "T1", "project_id": project_id})
     auth_client.post("/tasks/", json={"title": "T2", "project_id": project_id})
+    auth_client.post("/tasks/", json={"title": "T3", "project_id": project_id})
 
-    response = auth_client.get("/tasks/")
+    # Fetch page 1 size 2
+    response = auth_client.get("/tasks/?page=1&page_size=2")
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.json()) == 2
+    res_data = response.json()
+    assert "data" in res_data
+    assert "pagination" in res_data
+    assert len(res_data["data"]) == 2
+    
+    pagination = res_data["pagination"]
+    assert pagination["total_count"] == 3
+    assert pagination["page"] == 1
+    assert pagination["page_size"] == 2
+    assert pagination["total_pages"] == 2
+
+def test_get_tasks_filtering(auth_client):
+    p_res1 = auth_client.post("/projects/", json={"name": "Project P1"})
+    project_id1 = p_res1.json()["id"]
+    p_res2 = auth_client.post("/projects/", json={"name": "Project P2"})
+    project_id2 = p_res2.json()["id"]
+
+    # Create 3 tasks with different statuses and project_ids
+    auth_client.post("/tasks/", json={"title": "Task 1", "status": "Todo", "project_id": project_id1})
+    auth_client.post("/tasks/", json={"title": "Task 2", "status": "InProgress", "project_id": project_id1})
+    auth_client.post("/tasks/", json={"title": "Task 3", "status": "Todo", "project_id": project_id2})
+
+    # Filter by status "Todo"
+    res_status = auth_client.get("/tasks/?status=Todo")
+    assert res_status.status_code == status.HTTP_200_OK
+    assert len(res_status.json()["data"]) == 2
+
+    # Filter by project_id1
+    res_project = auth_client.get(f"/tasks/?project_id={project_id1}")
+    assert res_project.status_code == status.HTTP_200_OK
+    assert len(res_project.json()["data"]) == 2
+
+    # Filter by status "Todo" AND project_id1
+    res_both = auth_client.get(f"/tasks/?status=Todo&project_id={project_id1}")
+    assert res_both.status_code == status.HTTP_200_OK
+    assert len(res_both.json()["data"]) == 1
+    assert res_both.json()["data"][0]["title"] == "Task 1"
+
+def test_get_tasks_page_out_of_bounds(auth_client):
+    p_res = auth_client.post("/projects/", json={"name": "Project Y"})
+    project_id = p_res.json()["id"]
+    auth_client.post("/tasks/", json={"title": "T1", "project_id": project_id})
+
+    # Page 10 out of bounds
+    response = auth_client.get("/tasks/?page=10&page_size=2")
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["data"] == []
+    assert response.json()["pagination"]["total_count"] == 1
+    assert response.json()["pagination"]["total_pages"] == 1
+
+def test_get_tasks_validation_errors(auth_client):
+    response = auth_client.get("/tasks/?page=0&page_size=20")
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    response = auth_client.get("/tasks/?page=1&page_size=-1")
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    response = auth_client.get("/tasks/?page=1&page_size=101")
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 def test_get_task_by_id(auth_client):
     p_res = auth_client.post("/projects/", json={"name": "Project Z"})
@@ -91,7 +152,5 @@ def test_task_isolation(auth_client, db):
     db.commit()
     db.refresh(other_task)
 
-    # Attempt to retrieve other_user's task using auth_client (logged in as test@example.com)
-    # Expected: 404 Not Found to prevent leaking presence
     response = auth_client.get(f"/tasks/{other_task.id}")
     assert response.status_code == status.HTTP_404_NOT_FOUND
