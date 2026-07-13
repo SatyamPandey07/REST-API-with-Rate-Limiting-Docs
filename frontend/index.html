@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow API - Web GUI Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Background Canvas effects -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <!-- Header Banner / API URL config -->
+  <header class="app-header">
+    <div class="header-logo">
+      <h1>TaskFlow <span>API</span></h1>
+    </div>
+    <div class="api-config-bar">
+      <label for="api-base-url">API Server:</label>
+      <input type="text" id="api-base-url" value="http://localhost:8000/api/v1" placeholder="http://localhost:8000/api/v1">
+      <button id="btn-save-api-url" class="btn btn-secondary">Apply</button>
+    </div>
+  </header>
+
+  <main class="app-container">
+
+    <!-- 1. Authentication View -->
+    <section id="auth-view" class="view-section active">
+      <div class="glass-card auth-card">
+        <div class="auth-tabs">
+          <button id="tab-login" class="auth-tab-btn active">Sign In</button>
+          <button id="tab-register" class="auth-tab-btn">Create Account</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="form-login" class="auth-form active">
+          <h2>Welcome Back</h2>
+          <p class="auth-subtitle">Enter credentials to access your task flow.</p>
+          <div class="form-group">
+            <label for="login-email">Email Address</label>
+            <input type="email" id="login-email" required placeholder="name@example.com" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" required placeholder="••••••••" autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="form-register" class="auth-form">
+          <h2>Get Started</h2>
+          <p class="auth-subtitle">Create an account to construct projects and tasks.</p>
+          <div class="form-group">
+            <label for="register-email">Email Address</label>
+            <input type="email" id="register-email" required placeholder="name@example.com" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label for="register-password">Password</label>
+            <input type="password" id="register-password" required placeholder="Min 4 characters" autocomplete="new-password">
+          </div>
+          <button type="submit" class="btn btn-accent btn-block">Create Account</button>
+        </form>
+      </div>
+    </section>
+
+
+    <!-- 2. Main Application View (Hidden by default) -->
+    <section id="dashboard-view" class="view-section">
+      <div class="dashboard-layout">
+
+        <!-- Sidebar: Projects Selection -->
+        <aside class="sidebar-left glass-card">
+          <div class="sidebar-header">
+            <h3>Projects</h3>
+            <button id="btn-new-project" class="btn btn-mini" title="Create Project">+</button>
+          </div>
+          
+          <div id="project-list" class="project-list-container">
+            <!-- Dynamic Projects go here -->
+            <p class="empty-state">No projects created yet.</p>
+          </div>
+
+          <div class="project-pagination">
+            <button id="btn-project-prev" class="btn-pagination-arrow" disabled>&larr;</button>
+            <span id="project-page-num">1</span>
+            <button id="btn-project-next" class="btn-pagination-arrow" disabled>&rarr;</button>
+          </div>
+        </aside>
+
+        <!-- Center Board: Task List -->
+        <section class="main-board glass-card">
+          <div class="board-header">
+            <div class="board-title-group">
+              <h2 id="active-project-name">Select a Project</h2>
+              <p id="active-project-desc" class="board-subtitle">Create or select a project from the left sidebar to manage tasks.</p>
+            </div>
+            <div class="board-actions">
+              <button id="btn-edit-project" class="btn btn-secondary" style="display: none;">Edit Project</button>
+              <button id="btn-delete-project" class="btn btn-danger" style="display: none;">Delete Project</button>
+              <button id="btn-new-task" class="btn btn-primary" style="display: none;">+ Add Task</button>
+            </div>
+          </div>
+
+          <!-- Task Filter Options -->
+          <div id="task-filter-bar" class="filter-bar" style="display: none;">
+            <div class="filter-group">
+              <button class="filter-btn active" data-status="All">All Tasks</button>
+              <button class="filter-btn" data-status="Todo">Todo</button>
+              <button class="filter-btn" data-status="InProgress">In Progress</button>
+              <button class="filter-btn" data-status="Completed">Completed</button>
+            </div>
+          </div>
+
+          <div id="task-board-content" class="task-board-container">
+            <!-- Dynamic Tasks Card Board -->
+            <div class="board-welcome-state">
+              <div class="illustration-placeholder">📋</div>
+              <h3>Manage Your Tasks Seamlessly</h3>
+              <p>Sign in, choose a project, and add checklist items. Changes are fully synchronized with the FastAPI backend.</p>
+            </div>
+          </div>
+
+          <!-- Task Pagination -->
+          <div id="task-pagination-bar" class="task-pagination" style="display: none;">
+            <button id="btn-task-prev" class="btn btn-secondary" disabled>Previous</button>
+            <span id="task-page-info">Page 1</span>
+            <button id="btn-task-next" class="btn btn-secondary" disabled>Next</button>
+          </div>
+        </section>
+
+        <!-- Right Side: API Diagnostics & Headers Telemetry -->
+        <aside class="sidebar-right glass-card">
+          <div class="user-profile-widget">
+            <div class="avatar">👤</div>
+            <div class="user-info">
+              <span id="user-display-email" class="user-email">Not Signed In</span>
+              <span class="user-role">Authenticated User</span>
+            </div>
+            <button id="btn-logout" class="btn btn-danger btn-mini" title="Sign Out">Logout</button>
+          </div>
+
+          <div class="diagnostics-widget">
+            <h3>API Telemetry</h3>
+            
+            <!-- Health Monitor Widget -->
+            <div class="telemetry-item">
+              <span class="label">API Server Status</span>
+              <div class="value">
+                <span id="status-health-dot" class="status-dot status-offline"></span>
+                <span id="status-health-text" class="status-text">OFFLINE</span>
+              </div>
+            </div>
+
+            <div class="telemetry-separator"></div>
+
+            <!-- Rate Limit Logs -->
+            <h4>Rate Limiting Tiers</h4>
+            <div class="telemetry-item">
+              <span class="label">Key Resolver Scopes</span>
+              <span id="telemetry-rate-key" class="value badge">N/A</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="label">Request Limit</span>
+              <span id="telemetry-rate-limit" class="value">--</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="label">Remaining Requests</span>
+              <span id="telemetry-rate-remaining" class="value">--</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="label">Retry-After Lockout</span>
+              <span id="telemetry-rate-retry" class="value text-warning">None</span>
+            </div>
+
+            <div class="telemetry-separator"></div>
+
+            <!-- API Version warnings -->
+            <h4>API Version Warning</h4>
+            <div class="telemetry-item">
+              <span class="label">Active Version</span>
+              <span class="value font-mono">/api/v1/</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="label">Deprecated Status</span>
+              <span id="telemetry-ver-deprecated" class="value badge badge-green">false</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="label">Sunset Timestamp</span>
+              <span id="telemetry-ver-sunset" class="value font-mono text-small">None</span>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- --- Native MODAL Dialogs --- -->
+
+  <!-- Project Form Dialog -->
+  <dialog id="project-dialog" class="glass-modal">
+    <form method="dialog" id="form-project">
+      <h3 id="project-dialog-title">Create Project</h3>
+      <input type="hidden" id="project-dialog-id">
+      <div class="form-group">
+        <label for="project-name-input">Project Name</label>
+        <input type="text" id="project-name-input" required placeholder="e.g. Acme Website Redesign">
+      </div>
+      <div class="form-group">
+        <label for="project-desc-input">Description</label>
+        <textarea id="project-desc-input" placeholder="e.g. Scope parameters..."></textarea>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-secondary" id="btn-close-project-dialog">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="btn-submit-project-dialog">Create</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Task Form Dialog -->
+  <dialog id="task-dialog" class="glass-modal">
+    <form method="dialog" id="form-task">
+      <h3 id="task-dialog-title">Add Task</h3>
+      <input type="hidden" id="task-dialog-id">
+      <div class="form-group">
+        <label for="task-title-input">Task Title</label>
+        <input type="text" id="task-title-input" required placeholder="e.g. Implement OAuth2 flow">
+      </div>
+      <div class="form-group">
+        <label for="task-desc-input">Description</label>
+        <textarea id="task-desc-input" placeholder="e.g. Setup bearer token verifications..."></textarea>
+      </div>
+      <div class="form-group">
+        <label for="task-status-input">Status</label>
+        <select id="task-status-input">
+          <option value="Todo">Todo</option>
+          <option value="InProgress">In Progress</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-secondary" id="btn-close-task-dialog">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="btn-submit-task-dialog">Add Task</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Toasts notification block -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>

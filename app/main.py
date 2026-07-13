@@ -14,6 +14,8 @@ from app.limiter import limiter, custom_rate_limit_exceeded_handler
 logger = logging.getLogger("taskflow")
 logging.basicConfig(level=logging.INFO)
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(
     title="TaskFlow API",
     description="A task and project management REST API built with FastAPI.",
@@ -22,6 +24,15 @@ app = FastAPI(
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, custom_rate_limit_exceeded_handler)
+
+# Configure CORS to allow frontend connections
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Centralized versioned router
 v1_router = APIRouter(prefix="/api/v1")
