@@ -95,11 +95,34 @@ You can also import the pre-configured **[Postman Collection](docs/postman_colle
 
 The project includes an interactive single-page application (SPA) Web Dashboard located in the `frontend/` directory. It is designed with a modern glassmorphic interface to allow non-technical users to access and use the TaskFlow API directly in their browser.
 
+### Dashboard Preview
+![TaskFlow Web GUI Dashboard Preview](docs/assets/taskflow_dashboard_mockup.png)
+
 ### Features:
 - **Authentication**: Easy sign up and sign in interface. Tokens are safely persisted in `localStorage`.
 - **Project Board**: Create, list, edit, and delete projects. Selecting a project dynamically loads its associated tasks.
 - **Task Management**: Create tasks, edit descriptions, toggle status values (`Todo` &rarr; `InProgress` &rarr; `Completed`), and delete items.
 - **Real-time API Telemetry**: Displays health status (database connection tracking), rate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `Retry-After`), and API version warning headers (`X-API-Deprecated`, `Sunset`).
+
+### 🧪 Testing the Application (Step-by-Step for Laymen)
+Here is how you can use and test the application end-to-end:
+1. **Initialize a User Account**:
+   - Click the **Create Account** tab.
+   - Input your email (e.g. `user@example.com`) and a password (e.g. `password123`), then submit the form. You will see a success toast notification.
+2. **Authenticate (Sign In)**:
+   - Click the **Sign In** tab, input the same credentials, and submit.
+   - The UI will immediately load your profile and transition to the primary board view.
+3. **Manage Projects**:
+   - In the left sidebar under **Projects**, click the `+` button.
+   - Enter a name (e.g. `Marketing Campaign`) and description, then click **Create**.
+   - Click on the newly created project in the list to open it.
+4. **Organize Tasks**:
+   - Click the **+ Add Task** button in the main board header.
+   - Enter a task title (e.g. `Draft Press Release`) and click **Add Task**.
+   - Use the **Toggle Status** button on the task card to progress it from `Todo` &rarr; `In Progress` &rarr; `Completed`.
+   - Filter your board by tasks status using the dynamic filters bar.
+5. **Monitor Telemetry**:
+   - Inspect the **API Telemetry** panel on the right sidebar to watch backend rate limits, health indicators, and API deprecation warning headers in real time.
 
 ### Running the Web GUI:
 1. Ensure the TaskFlow API backend is running (`uvicorn app.main:app --port 8000`).
