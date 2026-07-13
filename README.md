@@ -51,6 +51,41 @@ Once started, you can access the interactive Swagger API documentation at **[htt
 
 ---
 
+## 🔑 Authentication
+
+All endpoints under `/projects` and `/tasks` are protected by JWT Bearer Token authentication. Here is how to use them:
+
+### 1. Register a User
+```bash
+curl -X POST http://localhost:8000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "mypassword"}'
+```
+
+### 2. Log in to Get an Access Token
+Since the endpoint supports the standard OAuth2 Password flow, send credentials as form data:
+```bash
+curl -X POST http://localhost:8000/auth/login \
+  -F "username=user@example.com" \
+  -F "password=mypassword"
+```
+Response:
+```json
+{
+  "access_token": "eyJhbGciOi...",
+  "token_type": "bearer"
+}
+```
+
+### 3. Access Protected Endpoints
+Pass the token in the `Authorization` header as a Bearer token:
+```bash
+curl -X GET http://localhost:8000/projects/ \
+  -H "Authorization: Bearer <YOUR_ACCESS_TOKEN>"
+```
+
+---
+
 ## 🧪 Running Tests
 
 Unit tests are executed in isolation using an in-memory SQLite database. You do not need the Docker Compose database running to run tests.
