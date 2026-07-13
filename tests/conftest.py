@@ -4,8 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.database import Base, get_db
 from app.main import app
+from app import models, security
 
-# SQLite database URL for testing
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
 engine = create_engine(
@@ -15,10 +15,8 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 @pytest.fixture(scope="function", autouse=True)
 def setup_database():
-    # Create tables
     Base.metadata.create_all(bind=engine)
     yield
-    # Drop tables after test completes
     Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture(name="db")
@@ -41,3 +39,21 @@ def client_fixture(db):
     with TestClient(app) as client:
         yield client
     app.dependency_overrides.clear()
+
+@pytest.fixture(name="test_user")
+def test_user_fixture(db):
+    hashed_password = security.hash_password("password123")
+    user = models.User(email="test@example.com", hashed_password=hashed_password)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+@pytest.fixture(name="token")
+def token_fixture(test_user):
+    return security.create_access_token(data={"sub": test_user.email})
+
+@pytest.fixture(name="auth_client")
+def auth_client_fixture(client, token):
+    client.headers.update({"Authorization": f"Bearer {token}"})
+    return client
