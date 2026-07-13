@@ -47,7 +47,10 @@ Start the Uvicorn development server:
 ```bash
 uvicorn app.main:app --reload --port 8000
 ```
-Once started, you can access the interactive Swagger API documentation at **[http://localhost:8000/docs](http://localhost:8000/docs)**.
+Once started, you can access the interactive Swagger API documentation at **[http://localhost:8000/docs](http://localhost:8000/docs)**, and the alternative ReDoc specification view at **[http://localhost:8000/redoc](http://localhost:8000/redoc)**.
+
+For detailed guidelines on the system design, error envelopes, and rate limit tiers, read the **[API Design Guide](docs/API_DESIGN.md)**.
+You can also import the pre-configured **[Postman Collection](docs/postman_collection.json)** to test the versioned API endpoints.
 
 ---
 
