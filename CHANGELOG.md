@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Explicit URL-based API versioning prefixing all endpoints with `/api/v1/`.
+- Dynamic deprecation detection HTTP middleware injecting `X-API-Deprecated` and `Sunset` response headers based on app configurations.
+- Unauthenticated uptime health check endpoint at `GET /api/v1/health` verifying database connectivity.
 - Rate limiting capability using the `slowapi` library integrated with a Redis backend.
 - Local development Docker-compose configured with a Redis database instance.
 - Specialized rate limits per client type:
