@@ -91,6 +91,27 @@ You can also import the pre-configured **[Postman Collection](docs/postman_colle
 
 ---
 
+## 🖥️ Web Dashboard (Layman GUI)
+
+The project includes an interactive single-page application (SPA) Web Dashboard located in the `frontend/` directory. It is designed with a modern glassmorphic interface to allow non-technical users to access and use the TaskFlow API directly in their browser.
+
+### Features:
+- **Authentication**: Easy sign up and sign in interface. Tokens are safely persisted in `localStorage`.
+- **Project Board**: Create, list, edit, and delete projects. Selecting a project dynamically loads its associated tasks.
+- **Task Management**: Create tasks, edit descriptions, toggle status values (`Todo` &rarr; `InProgress` &rarr; `Completed`), and delete items.
+- **Real-time API Telemetry**: Displays health status (database connection tracking), rate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `Retry-After`), and API version warning headers (`X-API-Deprecated`, `Sunset`).
+
+### Running the Web GUI:
+1. Ensure the TaskFlow API backend is running (`uvicorn app.main:app --port 8000`).
+2. Simply open `frontend/index.html` in any web browser, or serve it using a lightweight local server:
+   ```bash
+   # Using Python's built-in HTTP server
+   python3 -m http.server 3000 --directory frontend/
+   ```
+3. Open **[http://localhost:3000](http://localhost:3000)** in your browser. Configure the backend URL at the top if running on a custom port.
+
+---
+
 ## 🐳 Production Container Build
 
 For production environments, the application includes a secure, optimized multi-stage `Dockerfile`:
