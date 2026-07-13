@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.database import get_db
 from app.dependencies import get_current_user
 from app import models, schemas
+from app.limiter import limiter
 
 router = APIRouter(
     prefix="/tasks",
@@ -11,7 +12,9 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=schemas.TaskResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("30/minute")
 def create_task(
+    request: Request,
     task: schemas.TaskCreate, 
     db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
@@ -39,7 +42,9 @@ def create_task(
     return new_task
 
 @router.get("/", response_model=schemas.PaginatedTaskResponse)
+@limiter.limit("100/minute")
 def get_tasks(
+    request: Request,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     status: Optional[str] = Query(None),
@@ -70,7 +75,9 @@ def get_tasks(
     }
 
 @router.get("/{task_id}", response_model=schemas.TaskResponse)
+@limiter.limit("100/minute")
 def get_task(
+    request: Request,
     task_id: int, 
     db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
@@ -87,7 +94,9 @@ def get_task(
     return task
 
 @router.put("/{task_id}", response_model=schemas.TaskResponse)
+@limiter.limit("30/minute")
 def update_task(
+    request: Request,
     task_id: int, 
     task_update: schemas.TaskUpdate, 
     db: Session = Depends(get_db), 
@@ -129,7 +138,9 @@ def update_task(
     return task
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit("30/minute")
 def delete_task(
+    request: Request,
     task_id: int, 
     db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)

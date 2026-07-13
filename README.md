@@ -129,6 +129,33 @@ curl -X GET "http://localhost:8000/tasks/?status=Todo&project_id=2" \
 
 ---
 
+## 🛡️ Rate Limiting
+
+To maintain service stability, prevent brute-force attacks, and protect resources from abuse, TaskFlow API implements distinct rate-limiting tiers using `slowapi` and Redis.
+
+### Tiers & Limits Table
+
+| Endpoint Type | Applied Route | Rate Limit | Scope / Key | Rationale |
+| :--- | :--- | :--- | :--- | :--- |
+| **Auth** | `POST /auth/register`<br>`POST /auth/login` | **5 / minute** | Client IP | Protects user accounts from automated brute-force attacks and prevents registration spam. |
+| **Write** | `POST`, `PUT`, `DELETE` on `/projects` & `/tasks` | **30 / minute** | Authenticated User (JWT)<br>*(IP fallback)* | Prevents database write-locking, resource bloat, and spam creation of projects or tasks. |
+| **Read** | `GET` on `/projects` & `/tasks` | **100 / minute** | Authenticated User (JWT)<br>*(IP fallback)* | Allows generous read bandwidth to retrieve data, lists, and paginated information. |
+
+### Error Response & Retry
+When a client exceeds the limit, the API returns HTTP **`429 Too Many Requests`** along with a **`Retry-After`** header indicating the number of seconds to wait before retrying:
+
+```http
+HTTP/1.1 429 Too Many Requests
+Content-Type: application/json
+Retry-After: 48
+
+{
+  "detail": "Rate limit exceeded: 5 per 1 minute"
+}
+```
+
+---
+
 ## 🧪 Running Tests
 
 Unit tests are executed in isolation using an in-memory SQLite database. You do not need the Docker Compose database running to run tests.
