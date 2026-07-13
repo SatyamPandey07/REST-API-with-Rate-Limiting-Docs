@@ -91,7 +91,7 @@ You can also import the pre-configured **[Postman Collection](docs/postman_colle
 
 ---
 
-## 🖥️ Web Dashboard (Layman GUI)
+## 🖥️ Web Dashboard (Frontend GUI)
 
 The project includes an interactive single-page application (SPA) Web Dashboard located in the `frontend/` directory. It is designed with a modern glassmorphic interface to allow non-technical users to access and use the TaskFlow API directly in their browser.
 
@@ -101,7 +101,7 @@ The project includes an interactive single-page application (SPA) Web Dashboard 
 ### 🎥 Onboarding Walkthrough Video
 Watch the automated end-to-end walkthrough video showing user registration, project creation, task management, and status updates on the Web Dashboard:
 
-https://github.com/SatyamPandey07/REST-API-with-Rate-Limiting-Docs/assets/onboarding_walkthrough.webm
+https://github.com/SatyamPandey07/REST-API-with-Rate-Limiting-Docs/blob/main/docs/assets/onboarding_walkthrough.webm
 
 *(If the video doesn't play directly in your markdown parser, click the link above to view or download it).*
 
@@ -111,7 +111,7 @@ https://github.com/SatyamPandey07/REST-API-with-Rate-Limiting-Docs/assets/onboar
 - **Task Management**: Create tasks, edit descriptions, toggle status values (`Todo` &rarr; `InProgress` &rarr; `Completed`), and delete items.
 - **Real-time API Telemetry**: Displays health status (database connection tracking), rate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `Retry-After`), and API version warning headers (`X-API-Deprecated`, `Sunset`).
 
-### 🧪 Testing the Application (Step-by-Step for Laymen)
+### 🧪 Testing the Application (Step-by-Step Onboarding Guide)
 Here is how you can use and test the application end-to-end:
 1. **Initialize a User Account**:
    - Click the **Create Account** tab.

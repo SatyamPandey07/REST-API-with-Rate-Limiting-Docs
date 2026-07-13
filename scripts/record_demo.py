@@ -30,7 +30,7 @@ def record():
         page.wait_for_timeout(1000)
         
         print("3. Entering registration credentials...")
-        page.fill("#register-email", "layman@example.com")
+        page.fill("#register-email", "demo_user@example.com")
         page.fill("#register-password", "password123")
         page.wait_for_timeout(1500)
         
@@ -39,7 +39,7 @@ def record():
         page.wait_for_timeout(3000) # wait for signup complete toast
         
         print("5. Entering sign in credentials...")
-        page.fill("#login-email", "layman@example.com")
+        page.fill("#login-email", "demo_user@example.com")
         page.fill("#login-password", "password123")
         page.wait_for_timeout(1500)
         
