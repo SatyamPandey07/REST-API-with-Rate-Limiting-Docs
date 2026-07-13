@@ -16,6 +16,7 @@ class ProjectUpdate(BaseModel):
 
 class ProjectResponse(ProjectBase):
     id: int
+    user_id: int
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
@@ -39,6 +40,7 @@ class TaskUpdate(BaseModel):
 class TaskResponse(TaskBase):
     id: int
     project_id: int
+    user_id: int
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
@@ -49,3 +51,23 @@ class ProjectDetailResponse(ProjectResponse):
     tasks: List[TaskResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# --- User & Token Schemas ---
+class UserCreate(BaseModel):
+    email: str
+    password: str
+
+class UserResponse(BaseModel):
+    id: int
+    email: str
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
