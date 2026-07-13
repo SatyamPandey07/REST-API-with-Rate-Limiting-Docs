@@ -1,3 +1,6 @@
+import logging
+import time
+import json
 from fastapi import FastAPI, APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
@@ -6,6 +9,10 @@ from app.database import get_db
 from app.config import settings
 from slowapi.errors import RateLimitExceeded
 from app.limiter import limiter, custom_rate_limit_exceeded_handler
+
+# Configure structured request logging
+logger = logging.getLogger("taskflow")
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(
     title="TaskFlow API",
@@ -51,6 +58,23 @@ v1_router.include_router(projects.router)
 v1_router.include_router(tasks.router)
 
 app.include_router(v1_router)
+
+# Structured request logger middleware
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    start_time = time.perf_counter()
+    response = await call_next(request)
+    duration_ms = (time.perf_counter() - start_time) * 1000
+    
+    # Compile log details in JSON format
+    log_data = {
+        "method": request.method,
+        "path": request.url.path,
+        "status_code": response.status_code,
+        "duration_ms": f"{duration_ms:.2f}ms"
+    }
+    logger.info(json.dumps(log_data))
+    return response
 
 # Deprecation and Sunset headers HTTP middleware
 @app.middleware("http")
