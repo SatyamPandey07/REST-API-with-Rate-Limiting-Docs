@@ -98,6 +98,13 @@ The project includes an interactive single-page application (SPA) Web Dashboard 
 ### Dashboard Preview
 ![TaskFlow Web GUI Dashboard Preview](docs/assets/taskflow_dashboard_mockup.png)
 
+### 🎥 Onboarding Walkthrough Video
+Watch the automated end-to-end walkthrough video showing user registration, project creation, task management, and status updates on the Web Dashboard:
+
+https://github.com/SatyamPandey07/REST-API-with-Rate-Limiting-Docs/assets/onboarding_walkthrough.webm
+
+*(If the video doesn't play directly in your markdown parser, click the link above to view or download it).*
+
 ### Features:
 - **Authentication**: Easy sign up and sign in interface. Tokens are safely persisted in `localStorage`.
 - **Project Board**: Create, list, edit, and delete projects. Selecting a project dynamically loads its associated tasks.
