@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Interactive single-page application (SPA) Web Dashboard in `frontend/` (HTML/CSS/JS) built with a dark glassmorphic design system.
+- Configured CORS (`CORSMiddleware`) in the FastAPI backend application to permit cross-origin requests from the browser frontend.
 - Multi-stage, secure production `Dockerfile` running under non-privileged system user context (`runuser` UID 10001).
 - Structured JSON-formatted request logging middleware tracking HTTP method, path, status, and duration.
 - GitHub Actions CI workflow config at `.github/workflows/ci.yml` running on pushes/pull requests.
