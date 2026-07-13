@@ -8,7 +8,7 @@ from app.limiter import limiter
 
 router = APIRouter(
     prefix="/projects",
-    tags=["projects"]
+    tags=["Projects"]
 )
 
 @router.post("/", response_model=schemas.ProjectResponse, status_code=status.HTTP_201_CREATED)
@@ -19,6 +19,21 @@ def create_project(
     db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
 ):
+    """
+    Create a new project.
+
+    Initializes a project scoped exclusively to the authenticated user.
+
+    - **project**: Name and optional description of the project.
+    - **db**: Database session dependency.
+    - **current_user**: Authenticated User model extracted from JWT claims.
+
+    **Possible HTTP status returns:**
+    - **201 Created**: Project created successfully.
+    - **400 Bad Request**: If a project with the same name already exists for the active user.
+    - **401 Unauthorized**: If request is unauthenticated or the token is expired/invalid.
+    - **429 Too Many Requests**: If client requests exceed the write rate limit of 30 requests/minute.
+    """
     # Check duplicate project name within the scope of the current user
     db_project = db.query(models.Project).filter(
         models.Project.name == project.name,
@@ -48,6 +63,22 @@ def get_projects(
     db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
 ):
+    """
+    Retrieve all projects (paginated).
+
+    Returns a list of projects owned by the authenticated user enveloped in pagination metadata.
+
+    - **page**: Page index (must be >= 1).
+    - **page_size**: Record counts per page (must be between 1 and 100).
+    - **db**: Database session dependency.
+    - **current_user**: Authenticated User model.
+
+    **Possible HTTP status returns:**
+    - **200 OK**: List of projects and metadata retrieved. Page requests beyond actual counts return empty data `[]`.
+    - **401 Unauthorized**: If request is unauthenticated or has an invalid token.
+    - **422 Unprocessable Entity**: If bounds parameters (`page <= 0`, `page_size <= 0`, or `page_size > 100`) fail validation checks.
+    - **429 Too Many Requests**: If client requests exceed the read rate limit of 100 requests/minute.
+    """
     query = db.query(models.Project).filter(models.Project.user_id == current_user.id)
     total_count = query.count()
     
@@ -73,6 +104,21 @@ def get_project(
     db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
 ):
+    """
+    Retrieve detailed project information.
+
+    Returns the specified project's properties and includes the associated nested task array.
+
+    - **project_id**: Database identifier of the target project.
+    - **db**: Database session dependency.
+    - **current_user**: Authenticated User model.
+
+    **Possible HTTP status returns:**
+    - **200 OK**: Project details retrieved.
+    - **401 Unauthorized**: If request token is missing, expired, or invalid.
+    - **404 Not Found**: If the project does not exist, or belongs to another user (to avoid leaking resource existence).
+    - **429 Too Many Requests**: If client requests exceed 100 requests/minute.
+    """
     project = db.query(models.Project).filter(
         models.Project.id == project_id,
         models.Project.user_id == current_user.id
@@ -93,6 +139,23 @@ def update_project(
     db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
 ):
+    """
+    Update project details.
+
+    Modifies the project's title and description. Validates name uniqueness if modified.
+
+    - **project_id**: Database identifier of the target project.
+    - **project_update**: Object containing properties to modify.
+    - **db**: Database session dependency.
+    - **current_user**: Authenticated User model.
+
+    **Possible HTTP status returns:**
+    - **200 OK**: Project details modified and returned.
+    - **400 Bad Request**: If changing the name conflicts with an existing project of the active user.
+    - **401 Unauthorized**: If request token is missing, expired, or invalid.
+    - **404 Not Found**: If the project does not exist, or belongs to another user.
+    - **429 Too Many Requests**: If client requests exceed the write rate limit of 30 requests/minute.
+    """
     project = db.query(models.Project).filter(
         models.Project.id == project_id,
         models.Project.user_id == current_user.id
@@ -130,6 +193,21 @@ def delete_project(
     db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
 ):
+    """
+    Delete a project.
+
+    Deletes the project and cascades deletions to all associated Tasks.
+
+    - **project_id**: Database identifier of the target project.
+    - **db**: Database session dependency.
+    - **current_user**: Authenticated User model.
+
+    **Possible HTTP status returns:**
+    - **204 No Content**: Deletion succeeded.
+    - **401 Unauthorized**: If request token is missing, expired, or invalid.
+    - **404 Not Found**: If the project does not exist, or belongs to another user.
+    - **429 Too Many Requests**: If client requests exceed the write rate limit of 30 requests/minute.
+    """
     project = db.query(models.Project).filter(
         models.Project.id == project_id,
         models.Project.user_id == current_user.id

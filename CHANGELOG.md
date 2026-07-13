@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Comprehensive OpenAPI documentation enhancements for FastAPI, including detailed docstrings on all routers and tags grouping (Auth, Projects, Tasks, Health).
+- Detailed description and realistic request/response validation examples on all Pydantic schemas.
+- Automation script `scripts/generate_postman.py` compiling a complete v2.1.0 Postman collection saved at `docs/postman_collection.json`.
+- Comprehensive design guide at `docs/API_DESIGN.md` detailing architectural routing, versioning, security, and error handling.
 - Explicit URL-based API versioning prefixing all endpoints with `/api/v1/`.
 - Dynamic deprecation detection HTTP middleware injecting `X-API-Deprecated` and `Sunset` response headers based on app configurations.
 - Unauthenticated uptime health check endpoint at `GET /api/v1/health` verifying database connectivity.
