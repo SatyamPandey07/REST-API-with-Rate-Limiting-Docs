@@ -86,6 +86,49 @@ curl -X GET http://localhost:8000/projects/ \
 
 ---
 
+## 🔢 Pagination & Filtering
+
+List endpoints for both Projects and Tasks support pagination parameters. Additionally, Tasks support filtering by project and status.
+
+### 1. Pagination Parameters
+- `page`: The page number (ge=1, default=1).
+- `page_size`: Number of records to return (ge=1, le=100, default=20). Requesting > 100 results will reject the call with `422 Unprocessable Entity`.
+
+```bash
+curl -X GET "http://localhost:8000/tasks/?page=1&page_size=5" \
+  -H "Authorization: Bearer <YOUR_ACCESS_TOKEN>"
+```
+Response envelope structure:
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "Task 1",
+      "status": "Todo",
+      "project_id": 2,
+      "user_id": 1,
+      "created_at": "2026-07-13T20:56:47Z"
+    }
+  ],
+  "pagination": {
+    "total_count": 1,
+    "page": 1,
+    "page_size": 5,
+    "total_pages": 1
+  }
+}
+```
+
+### 2. Filtering Tasks
+Filter tasks by `status` or `project_id`:
+```bash
+curl -X GET "http://localhost:8000/tasks/?status=Todo&project_id=2" \
+  -H "Authorization: Bearer <YOUR_ACCESS_TOKEN>"
+```
+
+---
+
 ## 🧪 Running Tests
 
 Unit tests are executed in isolation using an in-memory SQLite database. You do not need the Docker Compose database running to run tests.
