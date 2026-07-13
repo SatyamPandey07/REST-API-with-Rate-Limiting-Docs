@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Multi-stage, secure production `Dockerfile` running under non-privileged system user context (`runuser` UID 10001).
+- Structured JSON-formatted request logging middleware tracking HTTP method, path, status, and duration.
 - GitHub Actions CI workflow config at `.github/workflows/ci.yml` running on pushes/pull requests.
 - Integrated sidecar PostgreSQL and Redis database containers inside CI pipeline environment.
 - Configured code test coverage reporting via `pytest-cov`, strictly enforcing a minimum threshold of **95%**.
